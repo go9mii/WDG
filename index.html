@@ -4,8 +4,18 @@
 <meta charset="UTF-8" />
 <title>💍 WEDDING BATTLE 💖</title>
 <style>
-  body { background: linear-gradient(#c2e9fb,#ffffff); font-family: "Comic Sans MS", sans-serif; text-align:center; margin:0; padding:0; }
-
+body {
+  background: linear-gradient(#c2e9fb, #ffffff);
+  font-family: "Comic Sans MS", sans-serif;
+  text-align: center;
+  margin: 0;
+  padding: 0;
+  
+  background-repeat: no-repeat;  /* 반복 제거 */
+  background-size: cover;        /* 화면 전체 채우기 */
+  background-attachment: fixed;  /* 스크롤 시 배경 고정 */
+}
+  
   /* 시작 화면 */
   #startScreen { width:100%; height:100vh; display:flex; flex-direction:column; justify-content:center; align-items:center; }
   #startScreen h1 { font-size:50px; margin-bottom:40px; }
@@ -207,4 +217,5 @@ const byungJikSkills={
 </script>
 </body>
 </html>
+
 
