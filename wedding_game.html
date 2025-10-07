@@ -4,48 +4,63 @@
 <meta charset="UTF-8" />
 <title>💍 WEDDING BATTLE 💖</title>
 <style>
-body { background: linear-gradient(#c2e9fb,#ffffff); font-family:"Comic Sans MS",sans-serif; text-align:center; margin:0; padding:0; }
+  body { background: linear-gradient(#c2e9fb,#ffffff); font-family: "Comic Sans MS", sans-serif; text-align:center; margin:0; padding:0; }
 
-/* 시작 화면 */
-#startScreen { width:100%; height:100vh; display:flex; flex-direction:column; justify-content:center; align-items:center; }
-#startScreen h1 { font-size:50px; margin-bottom:40px; }
-#startButton { padding:20px 40px; font-size:24px; border-radius:15px; border:none; background-color:#ff99cc; color:white; cursor:pointer; }
-#startButton:hover { background-color:#ff66aa; }
+  /* 시작 화면 */
+  #startScreen { width:100%; height:100vh; display:flex; flex-direction:column; justify-content:center; align-items:center; }
+  #startScreen h1 { font-size:50px; margin-bottom:40px; }
+  #startButton { padding:20px 40px; font-size:24px; border-radius:15px; border:none; background-color:#ff99cc; color:white; cursor:pointer; }
+  #startButton:hover { background-color:#ff66aa; }
 
-/* 배틀 화면 */
-#battleScreen { display:none; }
-#battlefield { position:relative; width:90%; max-width:800px; height:250px; margin:50px auto; background:#e6f7ff; border:3px solid #555; border-radius:15px; }
-.character { position:absolute; width:25%; bottom:0; max-width:200px; }
-#groom { left:5%; } #bride { right:5%; }
+  /* 배틀 화면 */
+  #battleScreen { display:none; }
+  #battlefield { position:relative; width:800px; height:250px; margin:50px auto; background:#e6f7ff; border:3px solid #555; border-radius:15px; }
+  .character { position:absolute; width:200px; bottom:0; }
+  #groom { left:100px; } #bride { right:100px; }
 
-.hpbar { width:80%; max-width:200px; height:20px; border:2px solid #333; border-radius:10px; background:#fff; margin:10px auto; overflow:hidden; }
-.hp { height:100%; background:linear-gradient(to right,#ff6699,#ff99cc); }
+  .hpbar { width:200px; height:20px; border:2px solid #333; border-radius:10px; background:#fff; margin:10px auto; overflow:hidden; }
+  .hp { height:100%; background:linear-gradient(to right,#ff6699,#ff99cc); }
 
-button { margin:5px; padding:10px 20px; font-size:16px; border-radius:8px; border:none; background-color:#ffd6e7; cursor:pointer; }
-button:hover { background-color:#ffc0da; }
+  button { margin:5px; padding:10px 20px; font-size:16px; border-radius:8px; border:none; background-color:#ffd6e7; cursor:pointer; }
+  button:hover { background-color:#ffc0da; }
 
-#log { margin-top:20px; font-size:20px; min-height:40px; }
+  #log { margin-top:20px; font-size:20px; min-height:40px; }
 
-/* 포옹 하트 */
-.heart-effect { position:absolute; font-size:20px; pointer-events:none; animation:floatUp 1.8s ease-out forwards; }
-@keyframes floatUp { 0% { transform:translateY(0) scale(0.5); opacity:0.8; } 50% { transform:translateY(-50px) scale(1.2); opacity:1; } 100% { transform:translateY(-120px) scale(0.8); opacity:0; } }
+  /* 포옹 하트 */
+  .heart-effect { position:absolute; font-size:20px; pointer-events:none; animation:floatUp 1.8s ease-out forwards; }
+  @keyframes floatUp {
+    0% { transform:translateY(0) scale(0.5); opacity:0.8; }
+    50% { transform:translateY(-50px) scale(1.2); opacity:1; }
+    100% { transform:translateY(-120px) scale(0.8); opacity:0; }
+  }
 
-/* 직진 하트 */
-.heart-fly { position:absolute; font-size:30px; pointer-events:none; animation:flyToTarget 1s linear forwards; }
-@keyframes flyToTarget { 0% { transform:translate(0,0) scale(0.5); opacity:0.8; } 100% { transform:translate(var(--dx,0px),var(--dy,0px)) scale(1); opacity:0; } }
+  /* 직진 하트 */
+ .heart-fly {
+  position:absolute;
+  font-size:30px;
+  pointer-events:none;
+  animation:flyToTarget 1s linear forwards;
+}
+
+@keyframes flyToTarget {
+  0% { transform: translate(0px, 0px) scale(0.5); opacity:0.8; }
+  100% { transform: translate(var(--dx, 0px), var(--dy, 0px)) scale(1); opacity:0; }
+}
 </style>
 </head>
 <body>
 
+<!-- 시작 화면 -->
 <div id="startScreen">
   <h1>💍 BATTLE TO THE WEDDING 💖</h1>
   <button id="startButton">게임 시작</button>
 </div>
 
+<!-- 배틀 화면 -->
 <div id="battleScreen">
   <div id="battlefield">
-    <img id="groom" class="character" src="https://raw.githubusercontent.com/go9mii/WDG/main/groom.png" alt="병직" />
-    <img id="bride" class="character" src="https://raw.githubusercontent.com/go9mii/WDG/main/bride.png" alt="고은" />
+    <img id="groom" class="character" src="groom.png" alt="병직" />
+    <img id="bride" class="character" src="bride.png" alt="고은" />
   </div>
 
   <div>
@@ -61,7 +76,8 @@ button:hover { background-color:#ffc0da; }
   <div id="log"></div>
 </div>
 
-<audio id="bgm" src="https://go9mii.github.io/WDG/love_bgm.mp3" loop></audio>
+<!-- 배경음 -->
+<audio id="bgm" src="love_bgm.mp3" loop></audio>
 
 <script>
 let goEunHP=0, byungJikHP=0, turn="goeun";
@@ -188,9 +204,6 @@ const byungJikSkills={
   "선물 준비하기":()=>{ goEunHP+=30; byungJikHP-=10; },
   "포옹하기":()=>{ goEunHP+=15; byungJikHP+=15; }
 };
-
 </script>
 </body>
 </html>
-
-
