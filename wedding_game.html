@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<title>💍 WEDDING BATTLE 💖</title>
+<style>
+  body { background: linear-gradient(#c2e9fb,#ffffff); font-family: "Comic Sans MS", sans-serif; text-align:center; margin:0; padding:0; }
+
+  /* 시작 화면 */
+  #startScreen { width:100%; height:100vh; display:flex; flex-direction:column; justify-content:center; align-items:center; }
+  #startScreen h1 { font-size:50px; margin-bottom:40px; }
+  #startButton { padding:20px 40px; font-size:24px; border-radius:15px; border:none; background-color:#ff99cc; color:white; cursor:pointer; }
+  #startButton:hover { background-color:#ff66aa; }
+
+/* 배틀 화면 */
+#battleScreen { display:none; }
+
+/* 배틀 필드 */
+#battlefield {
+  position: relative;
+  width: 90vw;       /* 화면 폭의 90% */
+  max-width: 800px;  /* 큰 화면에서는 최대 800px */
+  height: 30vw;      /* 폭에 비례해서 높이 조정 */
+  max-height: 250px; /* 최대 높이 */
+  margin: 5vh auto;  /* 위아래 여백 */
+  background: #e6f7ff;
+  border: 3px solid #555;
+  border-radius: 15px;
+}
+
+/* 캐릭터 */
+.character {
+  position: absolute;
+  width: 25%;        /* 화면 비율로 크기 조정 */
+  bottom: 0;
+}
+#groom { left: 5%; }   /* 화면 왼쪽 5% 위치 */
+#bride { right: 5%; }  /* 화면 오른쪽 5% 위치 */
+
+/* 체력바 */
+.hpbar {
+  width: 40vw;         /* 화면 비율 */
+  max-width: 200px;    /* 최대 크기 유지 */
+  height: 20px;
+  border: 2px solid #333;
+  border-radius: 10px;
+  background: #fff;
+  margin: 10px auto;
+  overflow: hidden;
+}
+
+/* 버튼 */
+button {
+  margin: 5px;
+  padding: 15px 25px;  /* 모바일에서 터치하기 편하게 */
+  font-size: 18px;
+  border-radius: 8px;
+  border: none;
+  background-color: #ffd6e7;
+  cursor: pointer;
+}
+button:hover { background-color: #ffc0da; }
+
+/* 로그 */
+#log {
+  margin-top: 20px;
+  font-size: 18px;   /* 모바일에서는 약간 작게 */
+  min-height: 40px;
+}
+  /* 포옹 하트 */
+  .heart-effect { position:absolute; font-size:20px; pointer-events:none; animation:floatUp 1.8s ease-out forwards; }
+  @keyframes floatUp {
+    0% { transform:translateY(0) scale(0.5); opacity:0.8; }
+    50% { transform:translateY(-50px) scale(1.2); opacity:1; }
+    100% { transform:translateY(-120px) scale(0.8); opacity:0; }
+  }
+
+  /* 직진 하트 */
+ .heart-fly {
+  position:absolute;
+  font-size:30px;
+  pointer-events:none;
+  animation:flyToTarget 1s linear forwards;
+}
+
+@keyframes flyToTarget {
+  0% { transform: translate(0px, 0px) scale(0.5); opacity:0.8; }
+  100% { transform: translate(var(--dx, 0px), var(--dy, 0px)) scale(1); opacity:0; }
+}
+</style>
+</head>
+<body>
+
+<!-- 시작 화면 -->
+<div id="startScreen">
+  <h1>💍 BATTLE TO THE WEDDING 💖</h1>
+  <button id="startButton">게임 시작</button>
+</div>
+
+<!-- 배틀 화면 -->
+<div id="battleScreen">
+  <div id="battlefield">
+    <img id="groom" class="character" src="groom.png" alt="병직" />
+    <img id="bride" class="character" src="bride.png" alt="고은" />
+  </div>
+
+  <div>
+    <h3>고은의 사랑지수</h3>
+    <div class="hpbar"><div id="goeunHP" class="hp" style="width:0%;"></div></div>
+
+    <h3>병직의 사랑지수</h3>
+    <div class="hpbar"><div id="byungjikHP" class="hp" style="width:0%;"></div></div>
+  </div>
+
+  <div id="buttons"></div>
+  <h2 id="turnLabel">❤️ 고은의 턴 ❤️</h2>
+  <div id="log"></div>
+</div>
+
+<!-- 배경음 -->
+<audio id="bgm" src="love_bgm.mp3" loop></audio>
+
+<script>
+let goEunHP=0, byungJikHP=0, turn="goeun";
+const log=document.getElementById("log");
+const turnLabel=document.getElementById("turnLabel");
+const bgm=document.getElementById("bgm");
+bgm.volume=0.5;
+
+// 시작 버튼
+document.getElementById("startButton").addEventListener("click",()=>{
+  document.getElementById("startScreen").style.display="none";
+  document.getElementById("battleScreen").style.display="block";
+  updateHP(); showButtons();
+  bgm.play().catch(()=>console.log("자동 재생 차단됨"));
+});
+
+// 포옹 하트
+function spawnHearts(x,y,count=7,color="#ff69b4"){
+  for(let i=0;i<count;i++){
+    const heart=document.createElement("div");
+    heart.className="heart-effect"; heart.innerText="💖"; heart.style.color=color;
+    heart.style.left=(x+Math.random()*50-25)+"px";
+    heart.style.top=(y+Math.random()*50-25)+"px";
+    document.getElementById("battlefield").appendChild(heart);
+    setTimeout(()=>heart.remove(),1800);
+  }
+}
+
+// 직진 하트
+function flyHeart(fromEl, toEl, color="#ff69b4"){
+  const bf = document.getElementById("battlefield");
+  const bfRect = bf.getBoundingClientRect();
+  const fromRect = fromEl.getBoundingClientRect();
+  const toRect = toEl.getBoundingClientRect();
+
+  const heart = document.createElement("div");
+  heart.className = "heart-fly";
+  heart.innerText = color === "#00ccff" ? "💖" : "💙";
+  heart.style.color = color;
+
+  // 시작 좌표
+  const startX = fromRect.left - bfRect.left + fromRect.width/2;
+  const startY = fromRect.top - bfRect.top + fromRect.height/2;
+
+  // 끝 좌표
+  const endX = toRect.left - bfRect.left + toRect.width/2;
+  const endY = toRect.top - bfRect.top + toRect.height/2;
+
+  heart.style.left = startX + "px";
+  heart.style.top = startY + "px";
+
+  // --dx, --dy는 transform에서 사용
+  heart.style.setProperty("--dx", (endX - startX) + "px");
+  heart.style.setProperty("--dy", (endY - startY) + "px");
+
+  bf.appendChild(heart);
+
+  // 애니메이션 끝나면 제거
+  heart.addEventListener("animationend", ()=>heart.remove());
+}
+
+function updateHP(){
+  document.getElementById("goeunHP").style.width=goEunHP+"%";
+  document.getElementById("byungjikHP").style.width=byungJikHP+"%";
+}
+
+function showButtons(){
+  const container=document.getElementById("buttons"); container.innerHTML="";
+  const skills=turn==="goeun"?goEunSkills:byungJikSkills;
+  Object.keys(skills).forEach(skill=>{
+    const btn=document.createElement("button"); btn.innerText=skill;
+    btn.onclick=()=>useSkill(skill); container.appendChild(btn);
+  });
+}
+
+function useSkill(skill){
+  const actor=turn==="goeun"?"고은":"병직";
+  const skillSet=turn==="goeun"?goEunSkills:byungJikSkills;
+  const groomEl=document.getElementById("groom");
+  const brideEl=document.getElementById("bride");
+
+  skillSet[skill]();
+
+  if(goEunHP>100) goEunHP=100;
+  if(byungJikHP>100) byungJikHP=100;
+  if(goEunHP<0) goEunHP=0;
+  if(byungJikHP<0) byungJikHP=0;
+
+  updateHP();
+  log.innerText=`${actor}이(가) '${skill}' 스킬을 썼다! 💫`;
+
+  // 포옹 하트 7개 양쪽
+  if(skill==="포옹하기"){
+    if(turn==="goeun"){ spawnHearts(200,50,7,"#ff69b4"); spawnHearts(500,50,7,"#ff69b4"); }
+    else { spawnHearts(500,50,7,"#00ccff"); spawnHearts(200,50,7,"#00ccff"); }
+  } else { // 직진 하트 1개
+    if(turn==="goeun") flyHeart(document.getElementById("groom"), document.getElementById("bride"), "#ff69b4");  // 고은 → 병직
+    else flyHeart(document.getElementById("bride"), document.getElementById("groom"), "#00ccff");  // 병직 → 고은
+  }
+
+  // 엔딩
+  if(goEunHP>=100 && byungJikHP>=100){
+    log.innerHTML=`💖 굿 엔딩 💖 행복하게 오래오래 살았습니다~<br>2월 7일에 만나요!`;
+    document.getElementById("buttons").innerHTML="";
+    turnLabel.innerText=""; return;
+  }
+
+  // 턴 전환
+  turn=turn==="goeun"?"byungjik":"goeun";
+  turnLabel.innerText=turn==="goeun"?"❤️ 고은의 턴 ❤️":"💙 병직의 턴 💙";
+  showButtons();
+}
+
+// 스킬 정의
+const goEunSkills={
+  "손수건 건네기":()=>{ byungJikHP+=20; },
+  "영양제 주기":()=>{ byungJikHP+=30; goEunHP-=10; },
+  "쿠키 만들어주기":()=>{ byungJikHP+=25; },
+  "포옹하기":()=>{ goEunHP+=15; byungJikHP+=15; }
+};
+const byungJikSkills={
+  "데이트 신청하기":()=>{ goEunHP+=20; },
+  "커피 사주기":()=>{ goEunHP+=25; },
+  "선물 준비하기":()=>{ goEunHP+=30; byungJikHP-=10; },
+  "포옹하기":()=>{ goEunHP+=15; byungJikHP+=15; }
+};
+</script>
+</body>
+</html>
