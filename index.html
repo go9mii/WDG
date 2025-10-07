@@ -184,8 +184,8 @@ function useSkill(skill){
     if(turn==="goeun"){ spawnHearts(200,50,7,"#ff69b4"); spawnHearts(500,50,7,"#ff69b4"); }
     else { spawnHearts(500,50,7,"#00ccff"); spawnHearts(200,50,7,"#00ccff"); }
   } else { // 직진 하트 1개
-    if(turn==="goeun") flyHeart(document.getElementById("groom"), document.getElementById("bride"), "#ff69b4");  // 고은 → 병직
-    else flyHeart(document.getElementById("bride"), document.getElementById("groom"), "#00ccff");  // 병직 → 고은
+    if(turn==="goeun") flyHeart(document.getElementById("bride"), document.getElementById("groom"), "#ff69b4");  // 고은 → 병직
+    else flyHeart(document.getElementById("groom"), document.getElementById("bride"), "#00ccff");  // 병직 → 고은
   }
 
   // 엔딩
@@ -217,5 +217,6 @@ const byungJikSkills={
 </script>
 </body>
 </html>
+
 
 
